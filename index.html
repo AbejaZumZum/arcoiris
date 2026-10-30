@@ -38,6 +38,17 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        /* Nueva clase para el scroll con dedo ocultando la barra */
+        .scrollable-overlay {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE y Edge */
+            touch-action: pan-y; /* Asegura que el touch vertical funcione */
+        }
+        .scrollable-overlay::-webkit-scrollbar {
+            display: none; /* Chrome, Safari y Opera */
+        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col justify-center items-center relative p-0 m-0">
@@ -50,7 +61,7 @@
 
         <!-- HUD UI Overlay -->
         <div id="hud" class="absolute top-0 left-0 w-full p-4 flex justify-between items-start pointer-events-none z-10">
-            <div class="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 shadow-lg flex gap-4 text-sm sm:text-base">
+            <div class="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 shadow-lg flex gap-4 text-sm sm:text-base pointer-events-auto">
                 <div>
                     <span class="text-pink-300 font-fredoka">VIDAS:</span>
                     <span id="lives-text" class="font-fredoka text-red-400 text-xl ml-1">❤️❤️❤️</span>
@@ -64,7 +75,7 @@
                     <span id="dist-text" class="font-fredoka text-white text-xl ml-1">0m</span>
                 </div>
             </div>
-            <div class="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 shadow-lg text-sm sm:text-base">
+            <div class="bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 shadow-lg text-sm sm:text-base hidden sm:block pointer-events-auto">
                 <span class="text-purple-300 font-fredoka">RÉCORD:</span>
                 <span id="highscore-text" class="font-fredoka text-emerald-300 text-xl ml-1">0</span>
             </div>
@@ -81,53 +92,61 @@
         </div>
 
         <!-- Start / Game Over Overlay -->
-        <div id="overlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col justify-center items-center p-6 text-center z-20">
-            <div id="start-screen" class="flex flex-col items-center max-w-md">
-                <h1 class="text-4xl sm:text-5xl font-fredoka text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-300 mb-2 drop-shadow-md">
-                    UNICORN RAINBOW RUN
-                </h1>
-                <p class="text-pink-200 text-sm sm:text-base mb-4 font-semibold">
-                    Plaza de Buenos Aires: Transforma la intolerancia con la magia de los colores ✨
-                </p>
-                <div class="bg-white/10 p-4 rounded-xl text-xs sm:text-sm text-left mb-6 space-y-2 border border-white/10 w-full">
-                    <p class="text-yellow-300 font-bold">🎮 CÓMO JUGAR:</p>
-                    <p>✨ <span class="font-bold text-pink-300">ESPACIO / TAP DERECHO:</span> Saltar (Doble salto disponible).</p>
-                    <p>🌈 <span class="font-bold text-cyan-300">TECLA X / F / TAP IZQ:</span> Disparar Rayo Arcoíris Alegre.</p>
-                    <p>🛡️ <span class="font-bold text-amber-300">Escudo de Fe:</span> ¡Los enemigos con aura dorada requieren 2 impactos!</p>
-                    <p>🚧 <span class="font-bold text-orange-400">Obras en vereda:</span> ¡Esquiva las vallas naranjas!</p>
-                    <p>👟 <span class="font-bold text-amber-300">Pisada en la cabeza:</span> Convierte enemigos en gente común (50 pts).</p>
-                    <p>🦋 <span class="font-bold text-pink-300">Mariposa Rosa:</span> +1 Vida Extra ❤️</p>
-                    <p>🛡️ <span class="font-bold text-yellow-300">Mariposa Dorada:</span> Escudo Mágico (6s)</p>
-                    <p>⏳ <span class="font-bold text-purple-300">Mariposa Violeta:</span> Slow Motion (5s)</p>
-                </div>
-                <button id="btn-start" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer w-full">
-                    ¡EMPEZAR A JUGAR!
-                </button>
+        <!-- Se implementó la clase scrollable-overlay -->
+        <div id="overlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm z-20 scrollable-overlay">
+            <div class="flex flex-col items-center w-full min-h-full px-6 text-center">
+                <!-- Espaciador flexible superior para centrar si la pantalla es alta -->
+                <div class="flex-grow"></div> 
                 
-                <button id="btn-exit" class="mt-4 bg-gradient-to-b from-rose-400 to-red-500 px-8 py-3 text-xl font-fredoka text-white rounded-full border-2 border-white/50 shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer w-full max-w-[250px]">
-                    SALIR
-                </button>
-            </div>
-
-            <div id="gameover-screen" class="hidden flex-col items-center max-w-md w-full">
-                <h2 class="text-5xl font-fredoka text-red-400 mb-2 drop-shadow-lg">¡FIN DEL JUEGO!</h2>
-                <p class="text-gray-300 mb-4">El unicornio fue alcanzado por la intolerancia...</p>
-                
-                <div class="bg-white/10 p-4 rounded-2xl border border-white/20 w-full mb-6 space-y-2 text-center">
-                    <div>Puntaje final: <span id="final-score" class="font-fredoka text-2xl text-yellow-300">0</span></div>
-                    <div>Distancia recorrida: <span id="final-dist" class="font-fredoka text-xl text-cyan-300">0m</span></div>
-                </div>
-
-                <div class="flex flex-col gap-4 w-full px-4">
-                    <button id="btn-restart" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer w-full">
-                        ¡INTENTAR DE NUEVO!
+                <div id="start-screen" class="flex flex-col items-center max-w-md w-full py-10">
+                    <h1 class="text-4xl sm:text-5xl font-fredoka text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-300 mb-2 drop-shadow-md">
+                        UNICORN RAINBOW RUN
+                    </h1>
+                    <p class="text-pink-200 text-sm sm:text-base mb-4 font-semibold">
+                        Plaza de Buenos Aires: Transforma la intolerancia con la magia de los colores ✨
+                    </p>
+                    <div class="bg-white/10 p-4 rounded-xl text-xs sm:text-sm text-left mb-6 space-y-2 border border-white/10 w-full">
+                        <p class="text-yellow-300 font-bold">🎮 CÓMO JUGAR:</p>
+                        <p>✨ <span class="font-bold text-pink-300">ESPACIO / TAP DERECHO:</span> Saltar (Doble salto disponible).</p>
+                        <p>🌈 <span class="font-bold text-cyan-300">TECLA X / F / TAP IZQ:</span> Disparar Rayo Arcoíris Alegre.</p>
+                        <p>🛡️ <span class="font-bold text-amber-300">Escudo de Fe:</span> ¡Los enemigos con aura dorada requieren 2 impactos!</p>
+                        <p>🚧 <span class="font-bold text-orange-400">Obras en vereda:</span> ¡Esquiva las vallas naranjas!</p>
+                        <p>👟 <span class="font-bold text-amber-300">Pisada en la cabeza:</span> Convierte enemigos en gente común (50 pts).</p>
+                        <p>🦋 <span class="font-bold text-pink-300">Mariposa Rosa:</span> +1 Vida Extra ❤️</p>
+                        <p>🛡️ <span class="font-bold text-yellow-300">Mariposa Dorada:</span> Escudo Mágico (6s)</p>
+                        <p>⏳ <span class="font-bold text-purple-300">Mariposa Violeta:</span> Slow Motion (5s)</p>
+                    </div>
+                    <button id="btn-start" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer w-full">
+                        ¡EMPEZAR A JUGAR!
                     </button>
                     
-                    <!-- NUEVO BOTÓN VOLVER AL MENÚ PRINCIPAL -->
-                    <button id="btn-menu" class="bg-gradient-to-r from-purple-500 to-indigo-500 px-8 py-3 text-xl font-fredoka text-white rounded-full border-2 border-white/50 shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer w-full">
-                        MENÚ PRINCIPAL
+                    <button id="btn-exit" class="mt-4 bg-gradient-to-b from-rose-400 to-red-500 px-8 py-3 text-xl font-fredoka text-white rounded-full border-2 border-white/50 shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer w-full max-w-[250px]">
+                        SALIR
                     </button>
                 </div>
+
+                <div id="gameover-screen" class="hidden flex-col items-center max-w-md w-full py-10">
+                    <h2 class="text-5xl font-fredoka text-red-400 mb-2 drop-shadow-lg">¡FIN DEL JUEGO!</h2>
+                    <p class="text-gray-300 mb-4">El unicornio fue alcanzado por la intolerancia...</p>
+                    
+                    <div class="bg-white/10 p-4 rounded-2xl border border-white/20 w-full mb-6 space-y-2 text-center">
+                        <div>Puntaje final: <span id="final-score" class="font-fredoka text-2xl text-yellow-300">0</span></div>
+                        <div>Distancia recorrida: <span id="final-dist" class="font-fredoka text-xl text-cyan-300">0m</span></div>
+                    </div>
+
+                    <div class="flex flex-col gap-4 w-full">
+                        <button id="btn-restart" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer w-full">
+                            ¡INTENTAR DE NUEVO!
+                        </button>
+                        
+                        <button id="btn-menu" class="bg-gradient-to-r from-purple-500 to-indigo-500 px-8 py-3 text-xl font-fredoka text-white rounded-full border-2 border-white/50 shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer w-full">
+                            MENÚ PRINCIPAL
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Espaciador flexible inferior -->
+                <div class="flex-grow"></div>
             </div>
         </div>
     </div>
@@ -285,7 +304,6 @@
         let gameSpeed = 5;
         const BASE_SPEED = 5;
 
-        // SIN VIBRACIÓN/SACUDIDA DE PANTALLA
         function triggerScreenShake() {}
 
         document.getElementById('highscore-text').innerText = highScore;
@@ -1379,10 +1397,9 @@
             }
         });
 
-        // --- LÓGICA DEL NUEVO BOTÓN MENÚ PRINCIPAL ---
         document.getElementById('btn-menu').addEventListener('click', () => {
             gameState = 'START';
-            unicorn.reset(); // Restablece al unicornio en su posición inicial
+            unicorn.reset(); 
             document.getElementById('gameover-screen').classList.add('hidden');
             document.getElementById('gameover-screen').classList.remove('flex');
             document.getElementById('start-screen').classList.remove('hidden');
