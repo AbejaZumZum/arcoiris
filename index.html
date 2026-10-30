@@ -145,16 +145,13 @@
                 
                 <div class="flex-grow"></div>
 
-                <!-- CRÉDITOS ACTUALIZADOS -->
+                <!-- CRÉDITOS -->
                 <div class="w-full max-w-md bg-black/40 border border-white/10 rounded-xl p-3 mb-4 flex items-center justify-center gap-4 text-center sm:text-left shadow-lg">
-                    <!-- Logo UNQ cargado desde el archivo local -->
-                    <div class="flex-shrink-0 drop-shadow-md flex items-center justify-center">
-                        <img src="image.png" alt="Logo UNQ" class="h-12 w-12 object-contain rounded-full border-2 border-white/20">
-                    </div>
+                    <img src="image.png" alt="Logo UNQ" class="h-12 w-12 object-contain drop-shadow-md bg-white/80 p-1 rounded-md border-2 border-white/20">
                     
                     <div class="flex flex-col">
                         <span class="text-xs text-gray-300">Desarrollado en el marco de:</span>
-                        <span class="text-sm sm:text-base font-fredoka text-pink-300 leading-tight mt-1">PEU Grupalidades Disidentes</span>
+                        <span class="text-sm sm:text-base font-fredoka text-pink-300">PEU Grupalidades Disidentes</span>
                         <span class="text-[10px] text-cyan-200 uppercase tracking-wider font-semibold">y Políticas del Cuidado</span>
                     </div>
                 </div>
@@ -743,6 +740,15 @@
             ctx.restore(); requestAnimationFrame(gameLoop);
         }
 
+        function ponerPantallaCompleta() {
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else if (elem.webkitRequestFullscreen) { /* Safari/iOS */
+                elem.webkitRequestFullscreen();
+            }
+        }
+
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if (gameState === 'PLAYING') unicorn.jump(); }
             if (e.code === 'KeyX' || e.code === 'KeyF') { e.preventDefault(); shootRainbow(); }
@@ -754,10 +760,17 @@
             else if (gameState === 'PLAYING' && e.clientX <= window.innerWidth / 2) { shootRainbow(); }
         });
 
-        document.getElementById('btn-start').addEventListener('click', startGame);
-        document.getElementById('btn-restart').addEventListener('click', startGame);
+        document.getElementById('btn-start').addEventListener('click', () => {
+            ponerPantallaCompleta();
+            startGame();
+        });
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            ponerPantallaCompleta();
+            startGame();
+        });
         document.getElementById('btn-exit').addEventListener('click', () => {
             if (confirm('¿Seguro que quieres salir del juego?')) {
+                if (document.exitFullscreen) { document.exitFullscreen(); }
                 window.close(); 
                 document.body.innerHTML = `
                     <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background:#111827; color:#fff; font-family:'Quicksand', sans-serif;">
