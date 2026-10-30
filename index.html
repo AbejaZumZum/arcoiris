@@ -238,19 +238,24 @@
 
         document.getElementById('highscore-text').innerText = highScore;
 
-        const sidewalkHeight = 90;
-        const getGroundY = () => CANVAS_HEIGHT - sidewalkHeight;
+        // Suelo Dinámico para rotaciones móviles
+        const getSidewalkHeight = () => Math.max(60, Math.min(90, CANVAS_HEIGHT * 0.18));
+        const getGroundY = () => CANVAS_HEIGHT - getSidewalkHeight();
 
         let butterflies = []; let butterflyTimer = 0;
         class Butterfly {
             constructor() {
-                this.x = CANVAS_WIDTH + 40; this.baseY = 120 + Math.random() * (CANVAS_HEIGHT - sidewalkHeight - 200);
-                this.y = this.baseY; this.width = 30; this.height = 30;
+                this.x = CANVAS_WIDTH + 40; 
+                this.groundOffset = 100 + Math.random() * 150;
+                this.y = 0; this.width = 30; this.height = 30;
                 const rand = Math.random(); this.type = rand < 0.4 ? 'PINK' : rand < 0.7 ? 'GOLDEN' : 'VIOLET';
                 this.wingAngle = 0; this.time = Math.random() * 100;
             }
             update(effectiveSpeed) {
-                this.x -= effectiveSpeed * 0.7; this.time += 0.08; this.y = this.baseY + Math.sin(this.time) * 30; this.wingAngle = Math.sin(this.time * 3);
+                this.x -= effectiveSpeed * 0.7; this.time += 0.08; 
+                this.baseY = getGroundY() - this.groundOffset;
+                this.y = this.baseY + Math.sin(this.time) * 30; 
+                this.wingAngle = Math.sin(this.time * 3);
             }
             draw() {
                 ctx.save(); ctx.translate(this.x + 15, this.y + 15);
@@ -270,8 +275,11 @@
 
         let obstacles = []; let obstacleTimer = 0;
         class Obstacle {
-            constructor() { this.width = 40; this.height = 45; this.x = CANVAS_WIDTH + 50; this.y = getGroundY() - this.height; }
-            update(effectiveSpeed) { this.x -= effectiveSpeed; }
+            constructor() { this.width = 40; this.height = 45; this.x = CANVAS_WIDTH + 50; this.y = 0; }
+            update(effectiveSpeed) { 
+                this.x -= effectiveSpeed; 
+                this.y = getGroundY() - this.height; // Siempre se pega al piso si rota
+            }
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y);
                 ctx.fillStyle = '#475569'; ctx.fillRect(5, 0, 5, 45); ctx.fillRect(30, 0, 5, 45);
@@ -308,11 +316,13 @@
         class Airplane {
             constructor() {
                 this.x = CANVAS_WIDTH + 100;
-                this.y = 280 + Math.random() * 70;
+                this.groundOffset = 130 + Math.random() * 70; // ¡ALTURA CORREGIDA A DISTANCIA IDEAL!
+                this.y = 0; 
                 this.width = 90; this.height = 40; this.state = 'NORMAL'; this.speedX = 3.5; this.dropTimer = 40 + Math.random() * 60; 
             }
             update(effectiveSpeed) {
                 this.x -= (this.speedX + effectiveSpeed * 0.4); this.dropTimer--;
+                this.y = getGroundY() - this.groundOffset; // Mantiene altura relativa al piso
                 if (this.dropTimer <= 0 && this.x > 100 && this.x < CANVAS_WIDTH - 50) {
                     if (this.state === 'NORMAL') { droppedItems.push(new DroppedItem(this.x + this.width / 2, this.y + this.height, 'BAD')); }
                     else { droppedItems.push(new DroppedItem(this.x + this.width / 2, this.y + this.height, 'FLOWER')); }
@@ -366,8 +376,18 @@
                 }
             },
             update() {
-                this.vy += this.gravity; this.y += this.vy; const groundY = getGroundY() - this.height;
-                if (this.y >= groundY) { this.y = groundY; this.vy = 0; this.isGrounded = true; this.jumpsLeft = 2; }
+                this.vy += this.gravity; 
+                this.y += this.vy; 
+                const groundY = getGroundY() - this.height;
+                // Previene que se hunda si rotan la pantalla
+                if (this.y >= groundY) { 
+                    this.y = groundY; 
+                    this.vy = 0; 
+                    this.isGrounded = true; 
+                    this.jumpsLeft = 2; 
+                } else {
+                    this.isGrounded = false;
+                }
                 this.animTimer++; if (this.animTimer % 6 === 0) { this.animFrame = (this.animFrame + 1) % 4; }
             },
             draw() {
@@ -430,12 +450,13 @@
         class Enemy {
             constructor() {
                 this.typeData = ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
-                this.width = 38; this.height = 55; this.x = CANVAS_WIDTH + 50; this.y = getGroundY() - this.height;
+                this.width = 38; this.height = 55; this.x = CANVAS_WIDTH + 50; this.y = 0;
                 this.state = 'NORMAL'; this.animOffset = Math.random() * Math.PI * 2; this.transformTimer = 0;
                 this.shootCooldown = Math.floor(60 + Math.random() * 120); this.hasShield = Math.random() < 0.4;
             }
             update(effectiveSpeed) {
                 this.x -= effectiveSpeed;
+                this.y = getGroundY() - this.height; // Siempre se pega al piso si rotan pantalla
                 if (this.state === 'NORMAL') {
                     this.shootCooldown--;
                     if (this.shootCooldown <= 0 && this.x < CANVAS_WIDTH - 80 && this.x > unicorn.x + 100) {
@@ -495,16 +516,18 @@
         }
 
         function updateAndDrawBackground(speed) {
+            const swH = getSidewalkHeight();
+            
             ctx.fillStyle = '#7dd3fc'; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(CANVAS_WIDTH - 100, 80, 45, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#86efac'; ctx.beginPath();
-            ctx.moveTo(0, CANVAS_HEIGHT - sidewalkHeight); ctx.quadraticCurveTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT - sidewalkHeight - 40, CANVAS_WIDTH, CANVAS_HEIGHT - sidewalkHeight);
+            ctx.moveTo(0, CANVAS_HEIGHT - swH); ctx.quadraticCurveTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT - swH - 40, CANVAS_WIDTH, CANVAS_HEIGHT - swH);
             ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT); ctx.lineTo(0, CANVAS_HEIGHT); ctx.fill();
 
             bgTrees.forEach(tree => {
                 tree.x -= speed * 0.4;
                 if (tree.x < -150) { tree.x = CANVAS_WIDTH + 100 + Math.random() * 100; tree.type = Math.floor(Math.random() * 4); }
-                ctx.save(); ctx.translate(tree.x, CANVAS_HEIGHT - sidewalkHeight); ctx.scale(tree.scale, tree.scale);
+                ctx.save(); ctx.translate(tree.x, CANVAS_HEIGHT - swH); ctx.scale(tree.scale, tree.scale);
                 if (tree.type === 0) {
                     ctx.fillStyle = '#5c3d2e'; ctx.fillRect(-10, -90, 20, 90);
                     ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.arc(0, -110, 45, 0, Math.PI*2); ctx.arc(-25, -90, 35, 0, Math.PI*2); ctx.arc(25, -90, 35, 0, Math.PI*2); ctx.fill();
@@ -521,15 +544,15 @@
                 ctx.restore();
             });
 
-            ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, CANVAS_HEIGHT - sidewalkHeight, CANVAS_WIDTH, sidewalkHeight);
+            ctx.fillStyle = '#94a3b8'; ctx.fillRect(0, CANVAS_HEIGHT - swH, CANVAS_WIDTH, swH);
             const tileSize = 30; const offsetX = (Date.now() * speed * 0.05) % tileSize;
             for (let x = -offsetX; x < CANVAS_WIDTH; x += tileSize) {
-                for (let y = CANVAS_HEIGHT - sidewalkHeight + 10; y < CANVAS_HEIGHT; y += tileSize) {
+                for (let y = CANVAS_HEIGHT - swH + 10; y < CANVAS_HEIGHT; y += tileSize) {
                     const isYellow = (Math.floor((x + offsetX) / tileSize) + Math.floor(y / tileSize)) % 2 === 0;
                     ctx.fillStyle = isYellow ? '#fde047' : '#cbd5e1'; ctx.fillRect(x, y, tileSize - 2, tileSize - 2);
                 }
             }
-            ctx.fillStyle = '#475569'; ctx.fillRect(0, CANVAS_HEIGHT - sidewalkHeight, CANVAS_WIDTH, 10);
+            ctx.fillStyle = '#475569'; ctx.fillRect(0, CANVAS_HEIGHT - swH, CANVAS_WIDTH, 10);
         }
 
         function shootRainbow() {
