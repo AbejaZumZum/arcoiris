@@ -100,12 +100,16 @@
                     <p>🛡️ <span class="font-bold text-yellow-300">Mariposa Dorada:</span> Escudo Mágico (6s)</p>
                     <p>⏳ <span class="font-bold text-purple-300">Mariposa Violeta:</span> Slow Motion (5s)</p>
                 </div>
-                <button id="btn-start" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer">
+                <button id="btn-start" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer w-full">
                     ¡EMPEZAR A JUGAR!
+                </button>
+                
+                <button id="btn-exit" class="mt-4 bg-gradient-to-b from-rose-400 to-red-500 px-8 py-3 text-xl font-fredoka text-white rounded-full border-2 border-white/50 shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer w-full max-w-[250px]">
+                    SALIR
                 </button>
             </div>
 
-            <div id="gameover-screen" class="hidden flex-col items-center max-w-md">
+            <div id="gameover-screen" class="hidden flex-col items-center max-w-md w-full">
                 <h2 class="text-5xl font-fredoka text-red-400 mb-2 drop-shadow-lg">¡FIN DEL JUEGO!</h2>
                 <p class="text-gray-300 mb-4">El unicornio fue alcanzado por la intolerancia...</p>
                 
@@ -114,9 +118,16 @@
                     <div>Distancia recorrida: <span id="final-dist" class="font-fredoka text-xl text-cyan-300">0m</span></div>
                 </div>
 
-                <button id="btn-restart" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer">
-                    ¡INTENTAR DE NUEVO!
-                </button>
+                <div class="flex flex-col gap-4 w-full px-4">
+                    <button id="btn-restart" class="btn-rainbow px-8 py-3 text-2xl font-fredoka text-white rounded-full border-2 border-white shadow-2xl hover:scale-105 active:scale-95 transition cursor-pointer w-full">
+                        ¡INTENTAR DE NUEVO!
+                    </button>
+                    
+                    <!-- NUEVO BOTÓN VOLVER AL MENÚ PRINCIPAL -->
+                    <button id="btn-menu" class="bg-gradient-to-r from-purple-500 to-indigo-500 px-8 py-3 text-xl font-fredoka text-white rounded-full border-2 border-white/50 shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer w-full">
+                        MENÚ PRINCIPAL
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -153,8 +164,7 @@
                     osc.start(now);
                     osc.stop(now + 0.15);
                 } else if (type === 'shoot') {
-                    // SONIDO ALEGRE: Arpegio festivo brillante de notas mágicas
-                    const notes = [523.25, 659.25, 783.99, 1046.50]; // Do, Mi, Sol, Do alto
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
                     notes.forEach((freq, idx) => {
                         const noteOsc = audioCtx.createOscillator();
                         const noteGain = audioCtx.createGain();
@@ -276,9 +286,7 @@
         const BASE_SPEED = 5;
 
         // SIN VIBRACIÓN/SACUDIDA DE PANTALLA
-        function triggerScreenShake() {
-            // Función desactivada a petición del usuario
-        }
+        function triggerScreenShake() {}
 
         document.getElementById('highscore-text').innerText = highScore;
 
@@ -286,7 +294,7 @@
         const sidewalkHeight = 90;
         const getGroundY = () => CANVAS_HEIGHT - sidewalkHeight;
 
-        // Butterfly Power-up System (Pink, Golden, Violet)
+        // Butterfly Power-up System
         let butterflies = [];
         let butterflyTimer = 0;
 
@@ -371,7 +379,7 @@
             }
         }
 
-        // OBSTÁCULOS: Obras en la vereda
+        // OBSTÁCULOS
         let obstacles = [];
         let obstacleTimer = 0;
         class Obstacle {
@@ -387,15 +395,12 @@
             draw() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
-                // Valla de obra
-                ctx.fillStyle = '#475569'; // Patas grises
+                ctx.fillStyle = '#475569';
                 ctx.fillRect(5, 0, 5, 45);
                 ctx.fillRect(30, 0, 5, 45);
-                // Tablas naranjas
                 ctx.fillStyle = '#ea580c';
                 ctx.fillRect(0, 5, 40, 10);
                 ctx.fillRect(0, 22, 40, 10);
-                // Líneas blancas
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(10, 5, 20, 10);
                 ctx.fillRect(10, 22, 20, 10);
@@ -412,7 +417,7 @@
                 this.width = 22;
                 this.height = 22;
                 this.speed = 6.5;
-                this.type = type; // 'bible', 'pamphlet', 'dark_symbol'
+                this.type = type;
                 this.angle = 0;
             }
             update(effectiveSpeed) {
@@ -425,14 +430,12 @@
                 ctx.rotate(this.angle);
 
                 if (this.type === 'bible') {
-                    // Dark Bible with gold cross
                     ctx.fillStyle = '#262626';
                     ctx.fillRect(-10, -12, 20, 24);
                     ctx.fillStyle = '#fbbf24';
                     ctx.fillRect(-2, -8, 4, 16);
                     ctx.fillRect(-7, -4, 14, 4);
                 } else if (this.type === 'pamphlet') {
-                    // Flying Paper Pamphlet
                     ctx.fillStyle = '#f3f4f6';
                     ctx.fillRect(-9, -12, 18, 24);
                     ctx.fillStyle = '#1f2937';
@@ -440,7 +443,6 @@
                     ctx.fillRect(-6, -4, 12, 2);
                     ctx.fillRect(-6, 0, 8, 2);
                 } else {
-                    // Dark Energy Symbol
                     ctx.fillStyle = '#312e81';
                     ctx.beginPath();
                     ctx.arc(0, 0, 10, 0, Math.PI * 2);
@@ -518,14 +520,11 @@
                 }
             },
             draw() {
-                if (invincibilityTimer > 0 && Math.floor(invincibilityTimer / 4) % 2 === 0) {
-                    return;
-                }
+                if (invincibilityTimer > 0 && Math.floor(invincibilityTimer / 4) % 2 === 0) return;
 
                 ctx.save();
                 ctx.translate(this.x, this.y);
 
-                // Shield Aura Visual Effect
                 if (shieldTimer > 0) {
                     ctx.save();
                     const shieldHue = (Date.now() / 3) % 360;
@@ -563,28 +562,19 @@
 
                 ctx.fillStyle = '#FFFFFF';
                 ctx.beginPath();
-                if (ctx.roundRect) {
-                    ctx.roundRect(10, 15 + bounce, 50, 32, [15]);
-                } else {
-                    ctx.fillRect(10, 15 + bounce, 50, 32);
-                }
+                if (ctx.roundRect) ctx.roundRect(10, 15 + bounce, 50, 32, [15]);
+                else ctx.fillRect(10, 15 + bounce, 50, 32);
                 ctx.fill();
 
                 ctx.beginPath();
-                if (ctx.roundRect) {
-                    ctx.roundRect(40, 0 + bounce, 22, 28, [10]);
-                } else {
-                    ctx.fillRect(40, 0 + bounce, 22, 28);
-                }
+                if (ctx.roundRect) ctx.roundRect(40, 0 + bounce, 22, 28, [10]);
+                else ctx.fillRect(40, 0 + bounce, 22, 28);
                 ctx.fill();
 
                 ctx.fillStyle = '#FFB6C1';
                 ctx.beginPath();
-                if (ctx.roundRect) {
-                    ctx.roundRect(52, 10 + bounce, 14, 15, [5]);
-                } else {
-                    ctx.fillRect(52, 10 + bounce, 14, 15);
-                }
+                if (ctx.roundRect) ctx.roundRect(52, 10 + bounce, 14, 15, [5]);
+                else ctx.fillRect(52, 10 + bounce, 14, 15);
                 ctx.fill();
 
                 ctx.fillStyle = '#111';
@@ -678,7 +668,6 @@
                 this.animOffset = Math.random() * Math.PI * 2;
                 this.transformTimer = 0;
                 this.shootCooldown = Math.floor(60 + Math.random() * 120);
-                // ESCUDO DE FE (40% probabilidad de requerir 2 impactos)
                 this.hasShield = Math.random() < 0.4;
             }
 
@@ -754,7 +743,6 @@
                         ctx.fillRect(10, 14, 18, 8);
                     }
 
-                    // AURA / ESCUDO DE FE
                     if (this.hasShield) {
                         ctx.strokeStyle = '#fde047';
                         ctx.lineWidth = 3;
@@ -852,7 +840,7 @@
             }
         }
 
-        // Background Decor (Trees of Buenos Aires)
+        // Background Decor
         let bgTrees = [];
         function initBackgroundTrees() {
             bgTrees = [];
@@ -894,7 +882,6 @@
                 ctx.scale(tree.scale, tree.scale);
 
                 if (tree.type === 0) {
-                    // Jacarandá
                     ctx.fillStyle = '#5c3d2e';
                     ctx.fillRect(-10, -90, 20, 90);
                     ctx.fillStyle = '#a855f7';
@@ -908,9 +895,7 @@
                     ctx.arc(-10, -115, 25, 0, Math.PI*2);
                     ctx.arc(15, -95, 20, 0, Math.PI*2);
                     ctx.fill();
-
                 } else if (tree.type === 1) {
-                    // Ceibo
                     ctx.fillStyle = '#4a2e18';
                     ctx.fillRect(-8, -80, 16, 80);
                     ctx.fillStyle = '#15803d';
@@ -924,9 +909,7 @@
                         ctx.arc(Math.cos(angle)*25, -95 + Math.sin(angle)*25, 6, 0, Math.PI*2);
                         ctx.fill();
                     }
-
                 } else if (tree.type === 2) {
-                    // Ombu
                     ctx.fillStyle = '#6b4f38';
                     ctx.beginPath();
                     ctx.moveTo(-35, 0);
@@ -941,9 +924,7 @@
                     ctx.arc(-40, -75, 40, 0, Math.PI*2);
                     ctx.arc(40, -75, 40, 0, Math.PI*2);
                     ctx.fill();
-
                 } else {
-                    // Palo Borracho
                     ctx.fillStyle = '#4d603e';
                     ctx.beginPath();
                     ctx.ellipse(0, -45, 22, 45, 0, 0, Math.PI*2);
@@ -959,11 +940,9 @@
                     ctx.arc(0, -110, 10, 0, Math.PI*2);
                     ctx.fill();
                 }
-
                 ctx.restore();
             });
 
-            // Vereda porteña de baldosas amarillas
             ctx.fillStyle = '#94a3b8';
             ctx.fillRect(0, CANVAS_HEIGHT - sidewalkHeight, CANVAS_WIDTH, sidewalkHeight);
 
@@ -975,7 +954,6 @@
                     const isYellow = (Math.floor((x + offsetX) / tileSize) + Math.floor(y / tileSize)) % 2 === 0;
                     ctx.fillStyle = isYellow ? '#fde047' : '#cbd5e1';
                     ctx.fillRect(x, y, tileSize - 2, tileSize - 2);
-
                     ctx.fillStyle = '#e2e8f0';
                     ctx.fillRect(x + 2, y + 2, tileSize - 6, tileSize - 6);
                 }
@@ -1117,7 +1095,6 @@
         function checkCollisions() {
             const unicornBox = { x: unicorn.x + 10, y: unicorn.y, w: unicorn.width - 20, h: unicorn.height };
 
-            // Unicorn vs Mariposas
             butterflies.forEach((b, bIdx) => {
                 if (
                     unicornBox.x < b.x + b.width &&
@@ -1158,7 +1135,6 @@
                 }
             });
 
-            // Unicorn vs Obras (Vallas de la vereda)
             obstacles.forEach((obs, oIdx) => {
                 if (
                     unicornBox.x < obs.x + obs.width - 10 &&
@@ -1171,7 +1147,6 @@
                 }
             });
 
-            // Beams vs Enemy Projectiles
             beams.forEach((beam, bIdx) => {
                 enemyProjectiles.forEach((proj, pIdx) => {
                     if (
@@ -1191,7 +1166,6 @@
                 });
             });
 
-            // Beams vs Enemies (Escudo de fe)
             beams.forEach((beam, bIdx) => {
                 enemies.forEach((enemy) => {
                     if (enemy.state === 'NORMAL') {
@@ -1232,7 +1206,6 @@
                 });
             });
 
-            // Unicorn vs Enemy Projectiles
             enemyProjectiles.forEach((proj, pIdx) => {
                 if (
                     unicornBox.x < proj.x + proj.width &&
@@ -1245,7 +1218,6 @@
                 }
             });
 
-            // Unicorn vs Enemies (Pisotón con escudo de fe)
             enemies.forEach((enemy) => {
                 if (
                     unicornBox.x < enemy.x + enemy.width - 10 &&
@@ -1394,6 +1366,28 @@
 
         document.getElementById('btn-start').addEventListener('click', startGame);
         document.getElementById('btn-restart').addEventListener('click', startGame);
+
+        document.getElementById('btn-exit').addEventListener('click', () => {
+            if (confirm('¿Seguro que quieres salir del juego?')) {
+                window.close(); 
+                document.body.innerHTML = `
+                    <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background:#111827; color:#fff; font-family:'Quicksand', sans-serif;">
+                        <h1 style="font-family:'Fredoka One', cursive; font-size:2.5rem; color:#f472b6; margin-bottom:1rem;">¡Gracias por jugar!</h1>
+                        <p style="font-size:1.2rem; color:#e5e7eb;">Ya puedes cerrar esta ventana.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // --- LÓGICA DEL NUEVO BOTÓN MENÚ PRINCIPAL ---
+        document.getElementById('btn-menu').addEventListener('click', () => {
+            gameState = 'START';
+            unicorn.reset(); // Restablece al unicornio en su posición inicial
+            document.getElementById('gameover-screen').classList.add('hidden');
+            document.getElementById('gameover-screen').classList.remove('flex');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('start-screen').classList.add('flex');
+        });
 
         window.addEventListener('load', () => {
             resizeCanvas();
