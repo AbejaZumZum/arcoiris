@@ -121,7 +121,7 @@
                     <div class="bg-black/60 p-4 rounded-xl border border-pink-400/50 w-full mb-4 text-sm text-center shadow-lg">
                         <p class="text-pink-300 font-bold mb-3 font-fredoka">¿La intolerancia te alcanzó en la vida real?<br>¡No estás solo/a/e!</p>
                         <ul class="space-y-2 text-left px-2">
-                            <li class="text-white text-xs sm:text-sm">🏳️‍🌈 <span class="font-bold text-purple-300">Defensoría LGBT (CABA):</span> 0800-999-3722 (Asistencia y reclamos).</li>
+                            <li class="text-white text-xs sm:text-sm">🏳️‍🌈 <span class="font-bold text-purple-300">FALGBT (CABA):</span> 11 5046-7056 / federacion@lgbt.org.ar.</li>
                             <li class="text-white text-xs sm:text-sm">🏳️‍⚧️ <span class="font-bold text-pink-300">Línea Diversidad (PBA):</span> WhatsApp 221-522-0800.</li>
                             <li class="text-white text-xs sm:text-sm">📞 <span class="font-bold text-cyan-300">Líneas 135 y 102:</span> Asistencia emocional y ayuda a la niñez.</li>
                         </ul>
@@ -238,7 +238,6 @@
 
         document.getElementById('highscore-text').innerText = highScore;
 
-        // Suelo Dinámico para rotaciones móviles
         const getSidewalkHeight = () => Math.max(60, Math.min(90, CANVAS_HEIGHT * 0.18));
         const getGroundY = () => CANVAS_HEIGHT - getSidewalkHeight();
 
@@ -278,7 +277,7 @@
             constructor() { this.width = 40; this.height = 45; this.x = CANVAS_WIDTH + 50; this.y = 0; }
             update(effectiveSpeed) { 
                 this.x -= effectiveSpeed; 
-                this.y = getGroundY() - this.height; // Siempre se pega al piso si rota
+                this.y = getGroundY() - this.height; 
             }
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y);
@@ -316,13 +315,13 @@
         class Airplane {
             constructor() {
                 this.x = CANVAS_WIDTH + 100;
-                this.groundOffset = 130 + Math.random() * 70; // ¡ALTURA CORREGIDA A DISTANCIA IDEAL!
+                this.groundOffset = 130 + Math.random() * 70;
                 this.y = 0; 
                 this.width = 90; this.height = 40; this.state = 'NORMAL'; this.speedX = 3.5; this.dropTimer = 40 + Math.random() * 60; 
             }
             update(effectiveSpeed) {
                 this.x -= (this.speedX + effectiveSpeed * 0.4); this.dropTimer--;
-                this.y = getGroundY() - this.groundOffset; // Mantiene altura relativa al piso
+                this.y = getGroundY() - this.groundOffset;
                 if (this.dropTimer <= 0 && this.x > 100 && this.x < CANVAS_WIDTH - 50) {
                     if (this.state === 'NORMAL') { droppedItems.push(new DroppedItem(this.x + this.width / 2, this.y + this.height, 'BAD')); }
                     else { droppedItems.push(new DroppedItem(this.x + this.width / 2, this.y + this.height, 'FLOWER')); }
@@ -379,7 +378,6 @@
                 this.vy += this.gravity; 
                 this.y += this.vy; 
                 const groundY = getGroundY() - this.height;
-                // Previene que se hunda si rotan la pantalla
                 if (this.y >= groundY) { 
                     this.y = groundY; 
                     this.vy = 0; 
@@ -456,7 +454,7 @@
             }
             update(effectiveSpeed) {
                 this.x -= effectiveSpeed;
-                this.y = getGroundY() - this.height; // Siempre se pega al piso si rotan pantalla
+                this.y = getGroundY() - this.height; 
                 if (this.state === 'NORMAL') {
                     this.shootCooldown--;
                     if (this.shootCooldown <= 0 && this.x < CANVAS_WIDTH - 80 && this.x > unicorn.x + 100) {
